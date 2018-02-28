@@ -51,13 +51,23 @@
     <Reference Include="System.ValueTuple">
       <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.Configuration">
+      <HintPath>..\packages\FSharp.Configuration.1.4.0\lib\net45\FSharp.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpYaml">
+      <HintPath>..\packages\FSharp.Configuration.1.4.0\lib\net45\SharpYaml.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Program.fs" />
     <Content Include="packages.config" />
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include=".gitignore" />
+    <None Include="DefaultConfig.yaml" />
+    <None Include="Config.yaml" />
   </ItemGroup>
   <PropertyGroup>
     <FSharpTargetsPath>..\packages\FSharp.Compiler.Tools.4.1.23\tools\Microsoft.FSharp.Targets</FSharpTargetsPath>

@@ -2,6 +2,7 @@
 open System.Net.Http
 open System.Text
 open Newtonsoft.Json
+open FSharp.Configuration
 
 [<AutoOpen>]
 module Fx =
@@ -87,6 +88,7 @@ type TimeEntryWrapper = {
     TimeEntry: TimeEntry
 }
 
+type SharpTogglConfig = YamlConfig<"DefaultConfig.yaml">
 
    
 let getDateSeqFor ((start: DateTime), (endd: DateTime)) =     
@@ -124,20 +126,21 @@ let postEntriesToToggl token (jsonTimeEntries: seq<string>) =
     Seq.iter (fun t -> TogglRest.createTimeEntry token t |> ignore) jsonTimeEntries
 
 [<EntryPoint>]
-let main argv = 
+let main _ = 
+
     let period = (DateTime(2018, 2, 01), DateTime(2018, 2, 05))
     let absences = [DateTime(2018, 2, 01); DateTime(2018, 2, 09)]
 
-    let token = "f60f768a28056afce058c93a1b5e77ea"
-    let devPid = "18898858"
-    
+    let config = SharpTogglConfig()
+    config.Load(@"Config.yaml")
+
     getDateSeqFor period
     |> excludeWeekends
     |> excludeAbsences absences
     |> tap (printfn "%A")
-    |> mapToTimeEntries "GetBusy dev" devPid
+    |> mapToTimeEntries "GetBusy dev" config.Toggl.DevPid
     |> mapToJson
-    |> postEntriesToToggl token
+    |> postEntriesToToggl config.Toggl.Token
 
     System.Console.ReadLine() |> ignore
     0 // return an integer exit code

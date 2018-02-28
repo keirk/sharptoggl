@@ -19,6 +19,8 @@ module String =
 
     let toBase64 bytes = Convert.ToBase64String(bytes)
 
+    let Base64 = toUtf8 >> toBase64
+
 module Rest = 
     let private addHeader (headers: Headers.HttpHeaders) (name, value: string) =
         headers.Add (name, value)
@@ -51,7 +53,7 @@ module TogglRest =
 
     let private getTogglApiUrl = sprintf "https://www.toggl.com/api/v8/%s"
 
-    let private toAuthHeader token = sprintf "Basic %s" (String.toBase64(String.toUtf8(sprintf "%s:api_token" token)))
+    let private toAuthHeader token = sprintf "Basic %s" <| String.Base64 (sprintf "%s:api_token" token)
     
     let private postHeaders token = 
         [("Content-Type", "application/json"); ("Authorization", (toAuthHeader token))] 
@@ -66,6 +68,7 @@ module TogglRest =
         let url = getTogglApiUrl "time_entries"
         printfn "%s" url
         Rest.post url (postHeaders token) entry 
+        |> tap (printfn "%A")
         |> tap (fun r -> (readContent r.Content) |> Async.RunSynchronously |> printfn "%A")
         
 
@@ -128,11 +131,16 @@ let postEntriesToToggl token (jsonTimeEntries: seq<string>) =
 [<EntryPoint>]
 let main _ = 
 
-    let period = (DateTime(2018, 2, 01), DateTime(2018, 2, 05))
+    let period = (DateTime(2018, 02, 01), DateTime(2018, 02, 28))
     let absences = [DateTime(2018, 2, 01); DateTime(2018, 2, 09)]
 
     let config = SharpTogglConfig()
-    config.Load(@"Config.yaml")
+    config.Load(@"../../Config.yaml")
+
+    let token = config.Toggl.Token.Replace("-", "")
+
+    printfn "Token %s" token
+
 
     getDateSeqFor period
     |> excludeWeekends
@@ -140,7 +148,7 @@ let main _ =
     |> tap (printfn "%A")
     |> mapToTimeEntries "GetBusy dev" config.Toggl.DevPid
     |> mapToJson
-    |> postEntriesToToggl config.Toggl.Token
+    |> postEntriesToToggl token
 
     System.Console.ReadLine() |> ignore
     0 // return an integer exit code

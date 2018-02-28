@@ -91,7 +91,7 @@ type TimeEntryWrapper = {
     TimeEntry: TimeEntry
 }
 
-type SharpTogglConfig = YamlConfig<"DefaultConfig.yaml">
+type SharpTogglConfig = YamlConfig<"DefaultConfig.yaml", InferTypesFromStrings = false>
 
    
 let getDateSeqFor ((start: DateTime), (endd: DateTime)) =     
@@ -137,7 +137,7 @@ let main _ =
     let config = SharpTogglConfig()
     config.Load(@"../../Config.yaml")
 
-    let token = config.Toggl.Token.Replace("-", "")
+    let token = config.Toggl.Token
 
     printfn "Token %s" token
 
